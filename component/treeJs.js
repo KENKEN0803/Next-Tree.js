@@ -118,8 +118,9 @@ export default class TreeJs extends Component {
             camera.position.x += modelSize * cameraPos.x;
             camera.position.y += modelSize * cameraPos.y;
             camera.position.z += modelSize * cameraPos.z;
-            camera.near = modelSize / 10;
-            camera.far = modelSize * 10;
+            camera.near = modelSize / 100;
+            camera.far = modelSize * 100;
+            camera.zoom = modelSize * 1.5;
             camera.updateProjectionMatrix();
             camera.lookAt(modelCenter);
 
