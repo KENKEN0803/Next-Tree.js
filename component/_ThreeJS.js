@@ -3,7 +3,7 @@ import {GLTFLoader} from "three/examples/jsm/loaders/GLTFLoader";
 import {useEffect, useRef} from "react";
 import {OrbitControls} from "three/addons/controls/OrbitControls";
 
-const ThreeJS = ({gltfUrl}) => {
+export default function _ThreeJS({gltfUrl}) {
     const canvasRef = useRef(null);
     useEffect(() => {
         if (canvasRef.current) {
@@ -53,5 +53,3 @@ const ThreeJS = ({gltfUrl}) => {
 
     return <canvas ref={canvasRef} id="canvas" width="600" height="600"></canvas>;
 };
-
-export default ThreeJS;

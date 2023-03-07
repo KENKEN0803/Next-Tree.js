@@ -1,10 +1,11 @@
 import styles from '../styles/Home.module.css';
-import Treejs from "../component/Treejs";
-import {useState} from "react";
+import React, {useState} from "react";
 import Head from "next/head";
+import TreeJs from "../component/treeJs";
+import {gltfList} from "../lib/constraint";
 
 export default function Home() {
-    const [gltfUrl, setGltfUrl] = useState('/assets/only_selected/only_selected.gltf');
+    const [gltfUrl, setGltfUrl] = useState(gltfList[0].url);
     return (
         <div className={styles.container}>
             <Head>
@@ -18,12 +19,12 @@ export default function Home() {
                     setGltfUrl(e.target.value);
                 }
                 }>
-                <option value="/assets/full/POC_Titan_Interior.gltf">FULL</option>
-                <option value="/assets/gik_gae/gik_gae.gltf">직계자손</option>
-                <option value="/assets/only_selected/only_selected.gltf">선택된것만</option>
+                {gltfList.map((gltf, i) =>
+                    <option value={gltf.url} key={`gltf${i}`}>{gltf.name}</option>
+                )}
             </select>
 
-            <Treejs gltfUrl={gltfUrl}/>
+            <TreeJs gltfUrl={gltfUrl} width={600} height={600}/>
 
             <style jsx>{`
               main {
