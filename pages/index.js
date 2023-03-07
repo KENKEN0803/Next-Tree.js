@@ -4,8 +4,8 @@ import Head from 'next/head';
 import TreeJs from '../component/treeJs';
 import { gltfList } from '../lib/constraint';
 
-export default function Home() {
-  const [gltfUrl, setGltfUrl] = useState(gltfList[0].url);
+export default function Home(props) {
+  const [gltfUrl, setGltfUrl] = useState(props.gltfList[0].url);
 
   return (
     <div className={styles.container}>
@@ -20,7 +20,7 @@ export default function Home() {
           setGltfUrl(e.target.value);
         }}
       >
-        {gltfList.map((gltf, i) => (
+        {props.gltfList.map((gltf, i) => (
           <option value={gltf.url} key={`gltf${i}`}>
             {gltf.name}
           </option>
@@ -85,4 +85,12 @@ export default function Home() {
       `}</style>
     </div>
   );
+}
+
+export async function getStaticProps() {
+  return {
+    props: {
+      gltfList,
+    },
+  };
 }
