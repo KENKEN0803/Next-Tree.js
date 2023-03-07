@@ -1,16 +1,29 @@
-import Head from 'next/head';
 import styles from '../styles/Home.module.css';
 import Treejs from "../component/Treejs";
+import {useState} from "react";
+import Head from "next/head";
 
 export default function Home() {
+    const [gltfUrl, setGltfUrl] = useState('/assets/only_selected/only_selected.gltf');
     return (
         <div className={styles.container}>
-            {/*<Head>*/}
-            {/*  <title>Create Next App</title>*/}
-            {/*  <link rel="icon" href="/favicon.ico" />*/}
-            {/*</Head>*/}
+            <Head>
+                <title>Create Next App</title>
+                <link rel="icon" href="/favicon.ico"/>
+            </Head>
 
-            <Treejs/>
+            <select
+                value={gltfUrl}
+                onChange={(e) => {
+                    setGltfUrl(e.target.value);
+                }
+                }>
+                <option value="/assets/full/POC_Titan_Interior.gltf">FULL</option>
+                <option value="/assets/gik_gae/gik_gae.gltf">직계자손</option>
+                <option value="/assets/only_selected/only_selected.gltf">선택된것만</option>
+            </select>
+
+            <Treejs gltfUrl={gltfUrl}/>
 
             <style jsx>{`
               main {
