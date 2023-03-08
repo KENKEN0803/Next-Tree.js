@@ -1,10 +1,19 @@
 import styles from '../styles/Home.module.css';
-import React, { useState } from 'react';
+import React, { useEffect, useMemo, useState } from 'react';
 import Head from 'next/head';
 import TreeJs from '../component/treeJs';
-
 export default function Home(props) {
   const [gltfUrl, setGltfUrl] = useState(props.gltfList[0].url);
+  const [enable, setEnable] = useState(true);
+
+  useEffect(() => {
+    setEnable(true);
+  }, [enable]);
+
+  const handleGltfUrlChange = (e) => {
+    setGltfUrl(e.target.value);
+    setEnable(false);
+  };
 
   return (
     <div className={styles.container}>
@@ -15,13 +24,7 @@ export default function Home(props) {
 
       <div>
         <label htmlFor={'gltfList'}>gltfList : </label>
-        <select
-          id={'gltfList'}
-          value={gltfUrl}
-          onChange={(e) => {
-            setGltfUrl(e.target.value);
-          }}
-        >
+        <select id={'gltfList'} value={gltfUrl} onChange={handleGltfUrlChange}>
           {props.gltfList.map((gltf, i) => (
             <option value={gltf.url} key={`gltf${i}`}>
               {gltf.name}
@@ -30,7 +33,15 @@ export default function Home(props) {
         </select>
       </div>
 
-      <TreeJs gltfUrl={gltfUrl} width={600} height={600} />
+      {enable && (
+        <TreeJs
+          gltfUrl={gltfUrl}
+          width={600}
+          height={600}
+          enable={enable}
+          setEnable={setEnable}
+        />
+      )}
 
       <style jsx>{`
         main {
@@ -69,7 +80,7 @@ export default function Home(props) {
           padding: 0.75rem;
           font-size: 1.1rem;
           font-family: Menlo, Monaco, Lucida Console, Liberation Mono, DejaVu Sans Mono,
-          Bitstream Vera Sans Mono, Courier New, monospace;
+            Bitstream Vera Sans Mono, Courier New, monospace;
         }
       `}</style>
 
@@ -79,7 +90,7 @@ export default function Home(props) {
           padding: 0;
           margin: 0;
           font-family: -apple-system, BlinkMacSystemFont, Segoe UI, Roboto, Oxygen, Ubuntu,
-          Cantarell, Fira Sans, Droid Sans, Helvetica Neue, sans-serif;
+            Cantarell, Fira Sans, Droid Sans, Helvetica Neue, sans-serif;
         }
 
         * {

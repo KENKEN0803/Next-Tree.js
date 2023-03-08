@@ -6,13 +6,14 @@ import { OrbitControls } from 'three/addons/controls/OrbitControls';
 export default class TreeJs extends Component {
   constructor(props) {
     super(props);
+    this.setEnable = props.setEnable;
+    this.enable = props.enable;
   }
 
   state = {
     progress: 0,
   };
   canvasRef = createRef();
-  _enabled = false;
   _container = null;
   _camera = null;
   _clock = null;
@@ -40,7 +41,6 @@ export default class TreeJs extends Component {
 
   startPreview() {
     this._resizeHandler = () => this._onWindowResize();
-    this._enabled = true;
     this._initScene();
     this._animate();
     window.addEventListener('resize', this._resizeHandler, false);
@@ -53,7 +53,6 @@ export default class TreeJs extends Component {
 
     const scene = (this._scene = new THREE.Scene());
 
-    // Note: The near and far planes can be set this way due to the use of "logarithmicDepthBuffer" in the renderer below.
     const camera = (this._camera = new THREE.PerspectiveCamera(
       45,
       this._container.offsetWidth / this._container.offsetHeight,
@@ -63,7 +62,29 @@ export default class TreeJs extends Component {
 
     scene.add(camera);
 
-    // RENDERER
+    // set background
+    // 3D Background. 360도 이미지를 사용할 수도 있다.
+    scene.background = new THREE.CubeTextureLoader()
+      // .setPath( 'textures/cubeMaps/' ) // prefix for all urls
+      .load([
+        'https://threejsfundamentals.org/threejs/resources/images/cubemaps/computer-history-museum/pos-x.jpg',
+        'https://threejsfundamentals.org/threejs/resources/images/cubemaps/computer-history-museum/neg-x.jpg',
+        'https://threejsfundamentals.org/threejs/resources/images/cubemaps/computer-history-museum/pos-y.jpg',
+        'https://threejsfundamentals.org/threejs/resources/images/cubemaps/computer-history-museum/neg-y.jpg',
+        'https://threejsfundamentals.org/threejs/resources/images/cubemaps/computer-history-museum/pos-z.jpg',
+        'https://threejsfundamentals.org/threejs/resources/images/cubemaps/computer-history-museum/neg-z.jpg',
+      ]);
+
+    // 2D Background
+    // const backGroundTextureLoader = new THREE.TextureLoader();
+    // backGroundTextureLoader.load(
+    //   'https://images.pexels.com/photos/1205301/pexels-photo-1205301.jpeg',
+    //   function (texture) {
+    //     scene.background = texture;
+    //   },
+    // );
+
+    // set renderer
     const renderer = (this._renderer = new THREE.WebGLRenderer({
       antialias: true,
       logarithmicDepthBuffer: true,
@@ -71,17 +92,20 @@ export default class TreeJs extends Component {
       canvas: this._container,
     }));
     renderer.setClearColor(0x222222);
-    renderer.setPixelRatio(window.devicePixelRatio);
-    renderer.setSize(window.innerWidth, window.innerHeight);
+    // full screen
+    // renderer.setPixelRatio(window.devicePixelRatio);
+    // renderer.setSize(window.innerWidth, window.innerHeight);
+    renderer.setPixelRatio(this.props.width / this.props.height);
+    renderer.setSize(this.props.width, this.props.height);
     renderer.outputEncoding = THREE.sRGBEncoding;
-
-    const loader = new GLTFLoader();
 
     const cameraPos = new THREE.Vector3(-0.2, 0.4, 1.4);
     const orbitControls = (this._orbitControls = new OrbitControls(
       this._camera,
       renderer.domElement,
     ));
+
+    // set light
 
     const lightX = new THREE.DirectionalLight(0xffffff, 10);
     lightX.position.set(10, 0, 0);
@@ -95,8 +119,9 @@ export default class TreeJs extends Component {
     lightZ.position.set(0, 0, 10);
     scene.add(lightZ);
 
-    console.log(' this.props.gltfUrl', this.props.gltfUrl);
-    loader.load(
+    const gltfLoader = new GLTFLoader();
+
+    gltfLoader.load(
       this.props.gltfUrl,
       (gltf) => {
         console.log('onLoad start', gltf);
@@ -168,9 +193,13 @@ export default class TreeJs extends Component {
 
   _onWindowResize() {
     console.log('onWindowResize', this._container.offsetWidth, this._container.offsetHeight);
+    return;
+    // TODO 반응형으로 변경
     this._camera.aspect = this._container.offsetWidth / this._container.offsetHeight;
     this._camera.updateProjectionMatrix();
-    this._renderer.setSize(window.innerWidth, window.innerHeight);
+    // full screen
+    // this._renderer.setSize(window.innerWidth, window.innerHeight);
+    this._renderer.setSize(this.props.width, this.props.height);
   }
 
   /**
@@ -180,12 +209,11 @@ export default class TreeJs extends Component {
    */
   cleanup() {
     console.log('cleanup', this._backgroundSubscription);
+    this.setEnable(false);
     if (this._backgroundSubscription) {
       this._backgroundSubscription.dispose();
       this._backgroundSubscription = undefined;
     }
-
-    this._enabled = false;
 
     if (this._container && this._renderer) {
       // this._container.removeChild(this._renderer.domElement);
