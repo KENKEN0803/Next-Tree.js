@@ -6,14 +6,14 @@ import { OrbitControls } from 'three/addons/controls/OrbitControls';
 export default class TreeJs extends Component {
   constructor(props) {
     super(props);
-    this.setEnable = props.setEnable;
-    this.enable = props.enable;
+    this._setEnable = props.setEnable;
+    this._enable = props.enable;
   }
 
   state = {
     progress: 0,
   };
-  canvasRef = createRef();
+  _canvasRef = createRef();
   _container = null;
   _camera = null;
   _clock = null;
@@ -22,6 +22,8 @@ export default class TreeJs extends Component {
   _mixer = null;
   _orbitControls = null;
   _backgroundSubscription = undefined;
+  _raycaster = new THREE.Raycaster();
+  _mouse = new THREE.Vector2();
 
   componentDidMount() {
     this.startPreview();
@@ -44,12 +46,24 @@ export default class TreeJs extends Component {
     this._initScene();
     this._animate();
     window.addEventListener('resize', this._resizeHandler, false);
+    this._canvasRef.current.addEventListener('click', this.onMouseClick.bind(this), false);
+  }
+
+  onMouseClick(event) {
+    // calculate _mouse position in normalized device coordinates (-1 to +1)
+    this._mouse.x = (event.clientX / window.innerWidth) * 2 - 1;
+    this._mouse.y = -(event.clientY / window.innerHeight) * 2 + 1;
+    this._raycaster.setFromCamera(this._mouse, this._camera);
+    const intersects = this._raycaster.intersectObject(this._scene, true);
+    if (intersects.length > 0) {
+      console.log(intersects[0].object.name);
+    }
   }
 
   _initScene() {
     this._clock = new THREE.Clock();
 
-    this._container = this.canvasRef.current;
+    this._container = this._canvasRef.current;
 
     const scene = (this._scene = new THREE.Scene());
 
@@ -137,7 +151,7 @@ export default class TreeJs extends Component {
         const modelCenter = new THREE.Vector3();
         boundingBox.getCenter(modelCenter);
 
-        // Set up mouse orbit controls.
+        // Set up _mouse orbit controls.
         orbitControls.reset();
         orbitControls.maxDistance = modelSize * 50;
         orbitControls.enableDamping = true;
@@ -180,6 +194,7 @@ export default class TreeJs extends Component {
 
   _animate() {
     requestAnimationFrame(() => this._animate());
+
     if (this._mixer) {
       this._mixer.update(this._clock.getDelta());
     }
@@ -209,7 +224,7 @@ export default class TreeJs extends Component {
    */
   cleanup() {
     console.log('cleanup', this._backgroundSubscription);
-    this.setEnable(false);
+    this._setEnable(false);
     if (this._backgroundSubscription) {
       this._backgroundSubscription.dispose();
       this._backgroundSubscription = undefined;
@@ -236,7 +251,7 @@ export default class TreeJs extends Component {
     return (
       <>
         <div>{progress}%</div>
-        <canvas ref={this.canvasRef} id='threeContainer' width={width} height={height} />
+        <canvas ref={this._canvasRef} id='threeContainer' width={width} height={height} />
       </>
     );
   }
