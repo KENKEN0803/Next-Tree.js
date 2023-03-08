@@ -3,6 +3,7 @@ import { GLTFLoader } from 'three/examples/jsm/loaders/GLTFLoader';
 import { Component, createRef } from 'react';
 import { OrbitControls } from 'three/addons/controls/OrbitControls';
 import { clickableObjectList } from '../lib/constraint';
+import _ from 'lodash';
 
 export default class TreeJs extends Component {
   constructor(props) {
@@ -49,9 +50,26 @@ export default class TreeJs extends Component {
     this._animate();
     window.addEventListener('resize', this._resizeHandler, false);
     this._canvasRef.current.addEventListener('click', this.onMouseClick.bind(this), false);
+    this._canvasRef.current.addEventListener('mousemove', this.onMouseMove.bind(this), false);
   }
 
+  onMouseMove = _.throttle((event) => {
+    this._mouse.x = (event.offsetX / this._canvasRef.current.clientWidth) * 2 - 1;
+    this._mouse.y = -(event.offsetY / this._canvasRef.current.clientHeight) * 2 + 1;
+    this._raycaster.setFromCamera(this._mouse, this._camera);
+    const intersects = this._raycaster.intersectObject(this._scene, true);
+    // apply cursor pointer if intersection is detected
+    if (intersects.length) {
+      if (clickableObjectList.includes(intersects[0].object.name)) {
+        this._renderer.domElement.style.cursor = 'pointer';
+      }
+    } else {
+      this._renderer.domElement.style.cursor = 'auto';
+    }
+  }, 100);
+
   onMouseClick(event) {
+    // Full screen
     // this._mouse.x = (event.clientX / window.innerWidth) * 2 - 1;
     // this._mouse.y = -(event.clientY / window.innerHeight) * 2 + 1;
     this._mouse.x = (event.offsetX / this._canvasRef.current.clientWidth) * 2 - 1;
@@ -60,9 +78,13 @@ export default class TreeJs extends Component {
     const intersects = this._raycaster.intersectObject(this._scene, true);
     if (intersects.length) {
       const clickedObjectName = intersects[0].object.name;
+
       this.setState({ clickedObject: clickedObjectName });
 
-      // set camera to clicked object
+      if (clickableObjectList.includes(clickedObjectName)) {
+        alert(clickedObjectName);
+      }
+      // TODO set camera to clicked object
       // const clickedObject = this._scene.getObjectByName(clickedObjectName);
       // if (clickedObject.parent) {
       //   this._camera.lookAt(clickedObject.parent.position);
@@ -79,10 +101,6 @@ export default class TreeJs extends Component {
       //     clickedObject.position.z + 10,
       //   );
       // }
-
-      if (clickableObjectList.includes(clickedObjectName)) {
-        alert(clickedObjectName);
-      }
     } else {
       this.setState({ clickedObject: '' });
     }
@@ -234,7 +252,7 @@ export default class TreeJs extends Component {
     }
   }
 
-  _onWindowResize() {
+  _onWindowResize = _.debounce(() => {
     console.log('onWindowResize', this._container.offsetWidth, this._container.offsetHeight);
     return;
     // TODO 반응형으로 변경
@@ -243,7 +261,7 @@ export default class TreeJs extends Component {
     // full screen
     // this._renderer.setSize(window.innerWidth, window.innerHeight);
     this._renderer.setSize(this.props.width, this.props.height);
-  }
+  }, 100);
 
   /**
    * @function cleanup
@@ -269,6 +287,7 @@ export default class TreeJs extends Component {
     }
 
     window.removeEventListener('resize', this._resizeHandler, false);
+    this._canvasRef.current.removeEventListener('click', this.onMouseClick.bind(this), false);
   }
 
   render() {
