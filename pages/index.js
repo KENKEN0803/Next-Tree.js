@@ -2,7 +2,6 @@ import styles from '../styles/Home.module.css';
 import React, { useState } from 'react';
 import Head from 'next/head';
 import TreeJs from '../component/treeJs';
-import { gltfList } from '../lib/constraint';
 
 export default function Home(props) {
   const [gltfUrl, setGltfUrl] = useState(props.gltfList[0].url);
@@ -90,7 +89,11 @@ export default function Home(props) {
 export async function getStaticProps() {
   return {
     props: {
-      gltfList,
+      gltfList: [
+        { url: '/assets/only_selected/only_selected.gltf', name: '선택된것만' },
+        { url: '/assets/full/POC_Titan_Interior.gltf', name: 'FULL' },
+        { url: '/assets/gik_gae/gik_gae.gltf', name: '직계자손' },
+      ],
     },
   };
 }

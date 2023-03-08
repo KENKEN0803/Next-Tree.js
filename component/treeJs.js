@@ -8,7 +8,9 @@ export default class TreeJs extends Component {
     super(props);
   }
 
-  state = {};
+  state = {
+    progress: 0,
+  };
   canvasRef = createRef();
   _enabled = false;
   _container = null;
@@ -142,6 +144,8 @@ export default class TreeJs extends Component {
       },
       (progress) => {
         console.info(progress);
+        // TODO backend content length set
+        this.setState({ progress: progress.loaded / progress.total });
       },
       (error) => {
         console.error(error);
@@ -200,6 +204,12 @@ export default class TreeJs extends Component {
     console.log('render', this.props.width, this.props.height);
     const width = this.props.width;
     const height = this.props.height;
-    return <canvas ref={this.canvasRef} id='threeContainer' width={width} height={height} />;
+    const progress = this.state.progress;
+    return (
+      <>
+        <div>{progress}%</div>
+        <canvas ref={this.canvasRef} id='threeContainer' width={width} height={height} />
+      </>
+    );
   }
 }
