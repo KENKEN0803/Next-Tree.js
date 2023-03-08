@@ -52,14 +52,33 @@ export default class TreeJs extends Component {
   }
 
   onMouseClick(event) {
-    // calculate _mouse position in normalized device coordinates (-1 to +1)
-    this._mouse.x = (event.clientX / window.innerWidth) * 2 - 1;
-    this._mouse.y = -(event.clientY / window.innerHeight) * 2 + 1;
+    // this._mouse.x = (event.clientX / window.innerWidth) * 2 - 1;
+    // this._mouse.y = -(event.clientY / window.innerHeight) * 2 + 1;
+    this._mouse.x = (event.offsetX / this._canvasRef.current.clientWidth) * 2 - 1;
+    this._mouse.y = -(event.offsetY / this._canvasRef.current.clientHeight) * 2 + 1;
     this._raycaster.setFromCamera(this._mouse, this._camera);
     const intersects = this._raycaster.intersectObject(this._scene, true);
     if (intersects.length) {
       const clickedObjectName = intersects[0].object.name;
       this.setState({ clickedObject: clickedObjectName });
+
+      // set camera to clicked object
+      // const clickedObject = this._scene.getObjectByName(clickedObjectName);
+      // if (clickedObject.parent) {
+      //   this._camera.lookAt(clickedObject.parent.position);
+      //   this._camera.position.set(
+      //     clickedObject.parent.position.x,
+      //     clickedObject.parent.position.y,
+      //     clickedObject.parent.position.z + 10,
+      //   );
+      // } else {
+      //   this._camera.lookAt(clickedObject.position);
+      //   this._camera.position.set(
+      //     clickedObject.position.x,
+      //     clickedObject.position.y,
+      //     clickedObject.position.z + 10,
+      //   );
+      // }
 
       if (clickableObjectList.includes(clickedObjectName)) {
         alert(clickedObjectName);
