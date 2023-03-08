@@ -128,22 +128,32 @@ export default class TreeJs extends Component {
     scene.add(camera);
 
     // set background
-    // 3D Background. 360도 이미지를 사용할 수도 있다.
-    scene.background = new THREE.CubeTextureLoader()
-      // .setPath( 'textures/cubeMaps/' ) // prefix for all urls
-      .load([
-        'https://threejsfundamentals.org/threejs/resources/images/cubemaps/computer-history-museum/pos-x.jpg',
-        'https://threejsfundamentals.org/threejs/resources/images/cubemaps/computer-history-museum/neg-x.jpg',
-        'https://threejsfundamentals.org/threejs/resources/images/cubemaps/computer-history-museum/pos-y.jpg',
-        'https://threejsfundamentals.org/threejs/resources/images/cubemaps/computer-history-museum/neg-y.jpg',
-        'https://threejsfundamentals.org/threejs/resources/images/cubemaps/computer-history-museum/pos-z.jpg',
-        'https://threejsfundamentals.org/threejs/resources/images/cubemaps/computer-history-museum/neg-z.jpg',
-      ]);
 
-    // 2D Background
+    const backgroundTextureLoader = new THREE.TextureLoader();
+    const backgroundTexture = backgroundTextureLoader.load(
+      '/assets/bg.jpeg',
+      () => {
+        const rt = new THREE.WebGLCubeRenderTarget(backgroundTexture.image.height);
+        rt.fromEquirectangularTexture(renderer, backgroundTexture);
+        scene.background = rt.texture;
+      });
+
+    // 3D Background 6장짜리 이미지
+    // scene.background = new THREE.CubeTextureLoader()
+    //   // .setPath( 'textures/cubeMaps/' ) // prefix for all urls
+    //   .load([
+    //     'https://threejsfundamentals.org/threejs/resources/images/cubemaps/computer-history-museum/pos-x.jpg',
+    //     'https://threejsfundamentals.org/threejs/resources/images/cubemaps/computer-history-museum/neg-x.jpg',
+    //     'https://threejsfundamentals.org/threejs/resources/images/cubemaps/computer-history-museum/pos-y.jpg',
+    //     'https://threejsfundamentals.org/threejs/resources/images/cubemaps/computer-history-museum/neg-y.jpg',
+    //     'https://threejsfundamentals.org/threejs/resources/images/cubemaps/computer-history-museum/pos-z.jpg',
+    //     'https://threejsfundamentals.org/threejs/resources/images/cubemaps/computer-history-museum/neg-z.jpg',
+    //   ]);
+
+    // 2D Background 그대로 보여주기
     // const backGroundTextureLoader = new THREE.TextureLoader();
     // backGroundTextureLoader.load(
-    //   'https://images.pexels.com/photos/1205301/pexels-photo-1205301.jpeg',
+    //   'https://3.bp.blogspot.com/-nKsvHDKHNvY/Usrb398L_CI/AAAAAAAALIU/ssDn6p7sRQc/s1600/bergsjostolen.jpg',
     //   function (texture) {
     //     scene.background = texture;
     //   },
@@ -239,9 +249,9 @@ export default class TreeJs extends Component {
         camera.position.x += modelSize * cameraPos.x;
         camera.position.y += modelSize * cameraPos.y;
         camera.position.z += modelSize * cameraPos.z;
-        camera.near = modelSize / 100;
-        camera.far = modelSize * 100;
-        camera.zoom = modelSize * 1.5;
+        camera.near = modelSize / 10;
+        camera.far = modelSize * 10;
+        // camera.zoom = modelSize * 1.5;
         camera.updateProjectionMatrix();
         camera.lookAt(modelCenter);
 
