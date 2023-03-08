@@ -172,17 +172,34 @@ export default class TreeJs extends Component {
 
     // set light
 
-    const lightX = new THREE.DirectionalLight(0xffffff, 10);
+    const white = 0xffffff;
+
+    const lightX = new THREE.DirectionalLight(white, 1);
     lightX.position.set(10, 0, 0);
     scene.add(lightX);
 
-    const lightY = new THREE.DirectionalLight(0xffffff, 10);
+    const revLightX = new THREE.DirectionalLight(white, 1);
+    revLightX.position.set(-10, 0, 0);
+    scene.add(revLightX);
+
+    const lightY = new THREE.DirectionalLight(white, 1);
     lightY.position.set(0, 10, 0);
     scene.add(lightY);
 
-    const lightZ = new THREE.DirectionalLight(0xffffff, 10);
+    const revLightY = new THREE.DirectionalLight(white, 1);
+    revLightY.position.set(0, -10, 0);
+    scene.add(revLightY);
+
+    const lightZ = new THREE.DirectionalLight(white, 1);
     lightZ.position.set(0, 0, 10);
     scene.add(lightZ);
+
+    const revLightZ = new THREE.DirectionalLight(white, 1);
+    revLightZ.position.set(0, 0, -10);
+    scene.add(revLightZ);
+
+    const ambientLight = new THREE.AmbientLight(white, 1);
+    scene.add(ambientLight);
 
     // 3D 압축 모델을 사용할 수 있다.
     const dracoLoader = new DRACOLoader();
