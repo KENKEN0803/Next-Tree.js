@@ -24,7 +24,6 @@ export default class TreeJs extends Component {
   _renderer = null;
   _mixer = null;
   _orbitControls = null;
-  _backgroundSubscription = undefined;
   _raycaster = new THREE.Raycaster();
   _mouse = new THREE.Vector2();
 
@@ -50,7 +49,8 @@ export default class TreeJs extends Component {
     this._animate();
     window.addEventListener('resize', this._resizeHandler, false);
     this._canvasRef.current.addEventListener('click', this.onMouseClick.bind(this), false);
-    this._canvasRef.current.addEventListener('mousemove', this.onMouseMove.bind(this), false);
+    // TODO 주석해제, 퍼포먼스 이슈 해결
+    // this._canvasRef.current.addEventListener('mousemove', this.onMouseMove.bind(this), false);
   }
 
   onMouseMove = _.throttle((event) => {
@@ -61,12 +61,16 @@ export default class TreeJs extends Component {
     // apply cursor pointer if intersection is detected
     if (intersects.length) {
       if (clickableObjectList.includes(intersects[0].object.name)) {
-        this._renderer.domElement.style.cursor = 'pointer';
+        if (this._renderer.domElement.style.cursor !== 'pointer') {
+          this._renderer.domElement.style.cursor = 'pointer';
+        }
       }
     } else {
-      this._renderer.domElement.style.cursor = 'auto';
+      if (this._renderer.domElement.style.cursor !== 'auto') {
+        this._renderer.domElement.style.cursor = 'auto';
+      }
     }
-  }, 100);
+  }, 300);
 
   onMouseClick(event) {
     // Full screen
@@ -269,12 +273,7 @@ export default class TreeJs extends Component {
    * This is called right before the active engine for the preview window is switched.
    */
   cleanup() {
-    console.log('cleanup', this._backgroundSubscription);
     this._setEnable(false);
-    if (this._backgroundSubscription) {
-      this._backgroundSubscription.dispose();
-      this._backgroundSubscription = undefined;
-    }
 
     if (this._container && this._renderer) {
       // this._container.removeChild(this._renderer.domElement);
@@ -288,6 +287,7 @@ export default class TreeJs extends Component {
 
     window.removeEventListener('resize', this._resizeHandler, false);
     this._canvasRef.current.removeEventListener('click', this.onMouseClick.bind(this), false);
+    this._canvasRef.current.removeEventListener('mousemove', this.onMouseMove.bind(this), false);
   }
 
   render() {

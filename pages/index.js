@@ -105,8 +105,8 @@ export async function getStaticProps() {
   return {
     props: {
       gltfList: [
-        { url: '/assets/only_selected/only_selected.gltf', name: '선택된것만' },
         { url: '/assets/full/POC_Titan_Interior.gltf', name: 'FULL' },
+        { url: '/assets/only_selected/only_selected.gltf', name: '선택된것만' },
         { url: '/assets/gik_gae/gik_gae.gltf', name: '직계자손' },
       ],
     },
