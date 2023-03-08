@@ -158,9 +158,8 @@ export default class TreeJs extends Component {
     }));
     renderer.setClearColor(0x222222);
     // full screen
-    // renderer.setPixelRatio(window.devicePixelRatio);
+    renderer.setPixelRatio(window.devicePixelRatio);
     // renderer.setSize(window.innerWidth, window.innerHeight);
-    renderer.setPixelRatio(this.props.width / this.props.height);
     renderer.setSize(this.props.width, this.props.height);
     renderer.outputEncoding = THREE.sRGBEncoding;
 
