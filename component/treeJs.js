@@ -2,6 +2,7 @@ import * as THREE from 'three';
 import { GLTFLoader } from 'three/examples/jsm/loaders/GLTFLoader';
 import { Component, createRef } from 'react';
 import { OrbitControls } from 'three/addons/controls/OrbitControls';
+import { clickableObjectList } from '../lib/constraint';
 
 export default class TreeJs extends Component {
   constructor(props) {
@@ -12,6 +13,7 @@ export default class TreeJs extends Component {
 
   state = {
     progress: 0,
+    clickedObject: '',
   };
   _canvasRef = createRef();
   _container = null;
@@ -55,8 +57,15 @@ export default class TreeJs extends Component {
     this._mouse.y = -(event.clientY / window.innerHeight) * 2 + 1;
     this._raycaster.setFromCamera(this._mouse, this._camera);
     const intersects = this._raycaster.intersectObject(this._scene, true);
-    if (intersects.length > 0) {
-      console.log(intersects[0].object.name);
+    if (intersects.length) {
+      const clickedObjectName = intersects[0].object.name;
+      this.setState({ clickedObject: clickedObjectName });
+
+      if (clickableObjectList.includes(clickedObjectName)) {
+        alert(clickedObjectName);
+      }
+    } else {
+      this.setState({ clickedObject: '' });
     }
   }
 
@@ -247,10 +256,11 @@ export default class TreeJs extends Component {
     console.log('render', this.props.width, this.props.height);
     const width = this.props.width;
     const height = this.props.height;
-    const progress = this.state.progress;
+    const { progress, clickedObject } = this.state;
     return (
       <>
-        <div>{progress}%</div>
+        <div>Loading progress : {progress}%</div>
+        <div>Clicked object : {clickedObject}</div>
         <canvas ref={this._canvasRef} id='threeContainer' width={width} height={height} />
       </>
     );
