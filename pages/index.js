@@ -13,18 +13,22 @@ export default function Home(props) {
         <link rel='icon' href='/favicon.ico' />
       </Head>
 
-      <select
-        value={gltfUrl}
-        onChange={(e) => {
-          setGltfUrl(e.target.value);
-        }}
-      >
-        {props.gltfList.map((gltf, i) => (
-          <option value={gltf.url} key={`gltf${i}`}>
-            {gltf.name}
-          </option>
-        ))}
-      </select>
+      <div>
+        <label htmlFor={'gltfList'}>gltfList : </label>
+        <select
+          id={'gltfList'}
+          value={gltfUrl}
+          onChange={(e) => {
+            setGltfUrl(e.target.value);
+          }}
+        >
+          {props.gltfList.map((gltf, i) => (
+            <option value={gltf.url} key={`gltf${i}`}>
+              {gltf.name}
+            </option>
+          ))}
+        </select>
+      </div>
 
       <TreeJs gltfUrl={gltfUrl} width={600} height={600} />
 
@@ -65,7 +69,7 @@ export default function Home(props) {
           padding: 0.75rem;
           font-size: 1.1rem;
           font-family: Menlo, Monaco, Lucida Console, Liberation Mono, DejaVu Sans Mono,
-            Bitstream Vera Sans Mono, Courier New, monospace;
+          Bitstream Vera Sans Mono, Courier New, monospace;
         }
       `}</style>
 
@@ -75,7 +79,7 @@ export default function Home(props) {
           padding: 0;
           margin: 0;
           font-family: -apple-system, BlinkMacSystemFont, Segoe UI, Roboto, Oxygen, Ubuntu,
-            Cantarell, Fira Sans, Droid Sans, Helvetica Neue, sans-serif;
+          Cantarell, Fira Sans, Droid Sans, Helvetica Neue, sans-serif;
         }
 
         * {
