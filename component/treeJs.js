@@ -4,6 +4,7 @@ import { Component, createRef } from 'react';
 import { OrbitControls } from 'three/addons/controls/OrbitControls';
 import { clickableObjectList } from '../lib/constraint';
 import _ from 'lodash';
+import { DRACOLoader } from 'three/addons/loaders/DRACOLoader';
 
 export default class TreeJs extends Component {
   constructor(props) {
@@ -183,8 +184,12 @@ export default class TreeJs extends Component {
     lightZ.position.set(0, 0, 10);
     scene.add(lightZ);
 
-    const gltfLoader = new GLTFLoader();
+    // 3D 압축 모델을 사용할 수 있다.
+    const dracoLoader = new DRACOLoader();
+    dracoLoader.setDecoderPath('https://www.gstatic.com/draco/v1/decoders/');
 
+    const gltfLoader = new GLTFLoader();
+    gltfLoader.setDRACOLoader(dracoLoader);
     gltfLoader.load(
       this.props.gltfUrl,
       (gltf) => {

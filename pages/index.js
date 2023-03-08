@@ -1,7 +1,8 @@
 import styles from '../styles/Home.module.css';
-import React, { useEffect, useMemo, useState } from 'react';
+import React, { useEffect, useState } from 'react';
 import Head from 'next/head';
 import TreeJs from '../component/treeJs';
+
 export default function Home(props) {
   const [gltfUrl, setGltfUrl] = useState(props.gltfList[0].url);
   const [enable, setEnable] = useState(true);
@@ -34,13 +35,7 @@ export default function Home(props) {
       </div>
 
       {enable && (
-        <TreeJs
-          gltfUrl={gltfUrl}
-          width={600}
-          height={600}
-          enable={enable}
-          setEnable={setEnable}
-        />
+        <TreeJs gltfUrl={gltfUrl} width={600} height={600} enable={enable} setEnable={setEnable} />
       )}
 
       <style jsx>{`
@@ -80,7 +75,7 @@ export default function Home(props) {
           padding: 0.75rem;
           font-size: 1.1rem;
           font-family: Menlo, Monaco, Lucida Console, Liberation Mono, DejaVu Sans Mono,
-            Bitstream Vera Sans Mono, Courier New, monospace;
+          Bitstream Vera Sans Mono, Courier New, monospace;
         }
       `}</style>
 
@@ -90,7 +85,7 @@ export default function Home(props) {
           padding: 0;
           margin: 0;
           font-family: -apple-system, BlinkMacSystemFont, Segoe UI, Roboto, Oxygen, Ubuntu,
-            Cantarell, Fira Sans, Droid Sans, Helvetica Neue, sans-serif;
+          Cantarell, Fira Sans, Droid Sans, Helvetica Neue, sans-serif;
         }
 
         * {
@@ -105,6 +100,7 @@ export async function getStaticProps() {
   return {
     props: {
       gltfList: [
+        { url: '/assets/compress/compress.glb', name: '블랜더 압축' },
         { url: '/assets/full/POC_Titan_Interior.gltf', name: 'FULL' },
         { url: '/assets/only_selected/only_selected.gltf', name: '선택된것만' },
         { url: '/assets/gik_gae/gik_gae.gltf', name: '직계자손' },
