@@ -19,6 +19,8 @@ export default class TreeJs extends Component {
 
   state = {
     progress: 0,
+    loadedBytes: 0,
+    totalBytes: 0,
     clickedObject: '',
   };
   _canvasRef = createRef();
@@ -265,15 +267,23 @@ export default class TreeJs extends Component {
         console.log('onLoad End');
       },
       (progress) => {
-        console.info(progress);
         // TODO backend content length set
-        this.setState({ progress: progress.loaded / progress.total });
+        this._loadingProgress(progress);
       },
       (error) => {
         console.error(error);
       },
     );
   }
+
+  _loadingProgress = _.throttle((progress) => {
+    console.info(progress);
+    this.setState({
+      progress: progress.loaded / progress.total,
+      loadedBytes: progress.loaded,
+      totalBytes: progress.total,
+    });
+  },100);
 
   _animate() {
     requestAnimationFrame(() => this._animate());
@@ -328,10 +338,12 @@ export default class TreeJs extends Component {
     console.log('render', this._width, this._height);
     const width = this._width;
     const height = this._height;
-    const { progress, clickedObject } = this.state;
+    const { progress, clickedObject, loadedBytes, totalBytes } = this.state;
     return (
       <>
-        <div>Loading progress : {progress}%</div>
+        <div>
+          Loading progress : {loadedBytes}/{totalBytes} {progress}%
+        </div>
         <div>Clicked object : {clickedObject}</div>
         <canvas ref={this._canvasRef} id='threeContainer' width={width} height={height} />
       </>
