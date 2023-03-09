@@ -6,6 +6,10 @@ import TreeJs from '../component/treeJs';
 export default function Home(props) {
   const [gltfUrl, setGltfUrl] = useState(props.gltfList[0].url);
   const [enable, setEnable] = useState(true);
+  const [width, setWidth] = useState(undefined);
+  const [height, setHeight] = useState(undefined);
+  const [tempWidth, setTempWidth] = useState(undefined);
+  const [tempHeight, setTempHeight] = useState(undefined);
 
   useEffect(() => {
     if (!enable) {
@@ -18,6 +22,20 @@ export default function Home(props) {
     setEnable(false);
   };
 
+  const handleSizeChange = () => {
+    setWidth(tempWidth);
+    setHeight(tempHeight);
+    setEnable(false);
+  };
+
+  const handleReset = () => {
+    setWidth(undefined);
+    setHeight(undefined);
+    setTempWidth(undefined);
+    setTempHeight(undefined);
+    setEnable(false);
+  };
+
   return (
     <div className={styles.container}>
       <Head>
@@ -26,7 +44,7 @@ export default function Home(props) {
       </Head>
 
       <div>
-        <label htmlFor={'gltfList'}>gltfList : </label>
+        <label htmlFor={'gltfList'}>gltf 리스트 : </label>
         <select id={'gltfList'} value={gltfUrl} onChange={handleGltfUrlChange}>
           {props.gltfList.map((gltf, i) => (
             <option value={gltf.url} key={`gltf${i}`}>
@@ -36,8 +54,33 @@ export default function Home(props) {
         </select>
       </div>
 
+      <div>
+        <label htmlFor={'width'}>width : </label>
+        <input
+          id={'width'}
+          type={'number'}
+          value={width}
+          onChange={(e) => setTempWidth(e.target.value)}
+        />
+        <label htmlFor={'height'}>height : </label>
+        <input
+          id={'height'}
+          type={'number'}
+          value={height}
+          onChange={(e) => setTempHeight(e.target.value)}
+        />
+        <button onClick={handleSizeChange}>적용</button>
+        <button onClick={handleReset}>리셋</button>
+      </div>
+
       {enable && (
-        <TreeJs gltfUrl={gltfUrl} width={600} height={600} enable={enable} setEnable={setEnable} />
+        <TreeJs
+          gltfUrl={gltfUrl}
+          width={width}
+          height={height}
+          enable={enable}
+          setEnable={setEnable}
+        />
       )}
 
       <style jsx>{`
