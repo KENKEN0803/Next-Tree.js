@@ -90,7 +90,9 @@ export default class TreeJs extends Component {
     if (intersects.length) {
       const clickedObjectName = intersects[0].object.name;
 
-      this.setState({ clickedObject: clickedObjectName });
+      if (this.state.clickedObject !== clickedObjectName) {
+        this.setState({ clickedObject: clickedObjectName });
+      }
 
       if (clickableObjectList.includes(clickedObjectName)) {
         alert(clickedObjectName);
@@ -113,7 +115,9 @@ export default class TreeJs extends Component {
       //   );
       // }
     } else {
-      this.setState({ clickedObject: '' });
+      if (this.state.clickedObject !== '') {
+        this.setState({ clickedObject: '' });
+      }
     }
   }
 
@@ -173,8 +177,11 @@ export default class TreeJs extends Component {
     renderer.setClearColor(0x222222);
     // full screen
     renderer.setPixelRatio(window.devicePixelRatio);
-    // renderer.setSize(window.innerWidth, window.innerHeight);
-    renderer.setSize(this._width, this._height);
+    if (this._isFullScreen) {
+      renderer.setSize(window.innerWidth, window.innerHeight);
+    } else {
+      renderer.setSize(this._width, this._height);
+    }
     renderer.outputEncoding = THREE.sRGBEncoding;
 
     const cameraPos = new THREE.Vector3(-0.2, 0.4, 1.4);
@@ -277,15 +284,16 @@ export default class TreeJs extends Component {
   }
 
   _loadingProgress = _.throttle((progress) => {
-    console.info(progress);
     this.setState({
-      progress: progress.loaded / progress.total,
+      progress: progress.total / progress.loaded,
       loadedBytes: progress.loaded,
       totalBytes: progress.total,
     });
-  },100);
+  }, 100);
 
   _animate() {
+    if (!this._enable) return;
+
     requestAnimationFrame(() => this._animate());
 
     if (this._mixer) {
@@ -300,14 +308,13 @@ export default class TreeJs extends Component {
   }
 
   _onWindowResize = _.debounce(() => {
+    // 풀스크린 상태가 아니면 리턴
+    if (!this._enable || !this._isFullScreen) return;
+
     console.log('onWindowResize', this._container.offsetWidth, this._container.offsetHeight);
-    return;
-    // TODO 반응형으로 변경
     this._camera.aspect = this._container.offsetWidth / this._container.offsetHeight;
     this._camera.updateProjectionMatrix();
-    // full screen
-    // this._renderer.setSize(window.innerWidth, window.innerHeight);
-    this._renderer.setSize(this._width, this._height);
+    this._renderer.setSize(window.innerWidth, window.innerHeight);
   }, 100);
 
   /**
@@ -318,12 +325,11 @@ export default class TreeJs extends Component {
   cleanup() {
     console.log('cleanup');
     this._setEnable(false);
+    this._enable = false;
 
     if (this._container && this._renderer) {
       // this._container.removeChild(this._renderer.domElement);
     }
-
-    this._camera = null;
 
     if (this._mixer) {
       this._mixer.stopAllAction();
@@ -332,6 +338,17 @@ export default class TreeJs extends Component {
     window.removeEventListener('resize', this._resizeHandler, false);
     this._canvasRef.current.removeEventListener('click', this.onMouseClick.bind(this), false);
     this._canvasRef.current.removeEventListener('mousemove', this.onMouseMove.bind(this), false);
+
+    this._container = null;
+    this._camera = null;
+    this._clock = null;
+    this._scene = null;
+    this._renderer = null;
+    this._mixer = null;
+    this._orbitControls = null;
+    this._raycaster = null;
+    this._mouse = null;
+    this._canvasRef = null;
   }
 
   render() {
