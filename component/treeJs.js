@@ -11,6 +11,10 @@ export default class TreeJs extends Component {
     super(props);
     this._setEnable = props.setEnable;
     this._enable = props.enable;
+    this._gltfUrl = props.gltfUrl;
+    this._width = props.width;
+    this._height = props.height;
+    this._isFullScreen = !props.width || !props.height;
   }
 
   state = {
@@ -37,8 +41,8 @@ export default class TreeJs extends Component {
   }
 
   componentDidUpdate(prevProps, prevState, snapshot) {
-    if (prevProps.gltfUrl !== this.props.gltfUrl) {
-      console.log('prevProps.gltfUrl', prevProps.gltfUrl, 'this.props.gltfUrl', this.props.gltfUrl);
+    if (prevProps.gltfUrl !== this._gltfUrl) {
+      console.log('prevProps.gltfUrl', prevProps.gltfUrl, 'this.props.gltfUrl', this._gltfUrl);
       this.cleanup();
       this.startPreview();
     }
@@ -130,13 +134,11 @@ export default class TreeJs extends Component {
     // set background
 
     const backgroundTextureLoader = new THREE.TextureLoader();
-    const backgroundTexture = backgroundTextureLoader.load(
-      '/assets/bg.jpeg',
-      () => {
-        const rt = new THREE.WebGLCubeRenderTarget(backgroundTexture.image.height);
-        rt.fromEquirectangularTexture(renderer, backgroundTexture);
-        scene.background = rt.texture;
-      });
+    const backgroundTexture = backgroundTextureLoader.load('/assets/bg.jpeg', () => {
+      const rt = new THREE.WebGLCubeRenderTarget(backgroundTexture.image.height);
+      rt.fromEquirectangularTexture(renderer, backgroundTexture);
+      scene.background = rt.texture;
+    });
 
     // 3D Background 6장짜리 이미지
     // scene.background = new THREE.CubeTextureLoader()
@@ -170,7 +172,7 @@ export default class TreeJs extends Component {
     // full screen
     renderer.setPixelRatio(window.devicePixelRatio);
     // renderer.setSize(window.innerWidth, window.innerHeight);
-    renderer.setSize(this.props.width, this.props.height);
+    renderer.setSize(this._width, this._height);
     renderer.outputEncoding = THREE.sRGBEncoding;
 
     const cameraPos = new THREE.Vector3(-0.2, 0.4, 1.4);
@@ -217,7 +219,7 @@ export default class TreeJs extends Component {
     const gltfLoader = new GLTFLoader();
     gltfLoader.setDRACOLoader(dracoLoader);
     gltfLoader.load(
-      this.props.gltfUrl,
+      this._gltfUrl,
       (gltf) => {
         console.log('onLoad start', gltf);
         const object = gltf.scene;
@@ -295,7 +297,7 @@ export default class TreeJs extends Component {
     this._camera.updateProjectionMatrix();
     // full screen
     // this._renderer.setSize(window.innerWidth, window.innerHeight);
-    this._renderer.setSize(this.props.width, this.props.height);
+    this._renderer.setSize(this._width, this._height);
   }, 100);
 
   /**
@@ -323,9 +325,9 @@ export default class TreeJs extends Component {
   }
 
   render() {
-    console.log('render', this.props.width, this.props.height);
-    const width = this.props.width;
-    const height = this.props.height;
+    console.log('render', this._width, this._height);
+    const width = this._width;
+    const height = this._height;
     const { progress, clickedObject } = this.state;
     return (
       <>
