@@ -1,11 +1,10 @@
-FROM node:16.19.0
+FROM node:18.15.0
 
 WORKDIR /app
 
-COPY package.json ./
-RUN yarn
-
 COPY . .
+
+RUN yarn
 
 RUN yarn run build
 

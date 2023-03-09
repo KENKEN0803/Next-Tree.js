@@ -1,8 +1,7 @@
 # compiled output
 .vscode
 /node_modules
-/src
-/public
+.next
 
 # code formatter
 .eslintrc
