@@ -304,6 +304,7 @@ export default class TreeJs extends Component {
    * This is called right before the active engine for the preview window is switched.
    */
   cleanup() {
+    console.log('cleanup');
     this._setEnable(false);
 
     if (this._container && this._renderer) {

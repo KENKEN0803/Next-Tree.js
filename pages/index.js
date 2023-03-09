@@ -8,7 +8,9 @@ export default function Home(props) {
   const [enable, setEnable] = useState(true);
 
   useEffect(() => {
-    setEnable(true);
+    if (!enable) {
+      setEnable(true);
+    }
   }, [enable]);
 
   const handleGltfUrlChange = (e) => {
@@ -19,7 +21,7 @@ export default function Home(props) {
   return (
     <div className={styles.container}>
       <Head>
-        <title>Create Next App</title>
+        <title>LG POC</title>
         <link rel='icon' href='/favicon.ico' />
       </Head>
 
@@ -75,7 +77,7 @@ export default function Home(props) {
           padding: 0.75rem;
           font-size: 1.1rem;
           font-family: Menlo, Monaco, Lucida Console, Liberation Mono, DejaVu Sans Mono,
-          Bitstream Vera Sans Mono, Courier New, monospace;
+            Bitstream Vera Sans Mono, Courier New, monospace;
         }
       `}</style>
 
@@ -85,7 +87,7 @@ export default function Home(props) {
           padding: 0;
           margin: 0;
           font-family: -apple-system, BlinkMacSystemFont, Segoe UI, Roboto, Oxygen, Ubuntu,
-          Cantarell, Fira Sans, Droid Sans, Helvetica Neue, sans-serif;
+            Cantarell, Fira Sans, Droid Sans, Helvetica Neue, sans-serif;
         }
 
         * {
