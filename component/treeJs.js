@@ -128,6 +128,8 @@ export default class TreeJs extends Component {
 
     const scene = (this._scene = new THREE.Scene());
 
+    scene.add(new THREE.AxesHelper(5));
+
     const camera = (this._camera = new THREE.PerspectiveCamera(
       45,
       this._container.offsetWidth / this._container.offsetHeight,
@@ -285,7 +287,7 @@ export default class TreeJs extends Component {
 
   _loadingProgress = _.throttle((progress) => {
     this.setState({
-      progress: progress.total / progress.loaded,
+      progress: (progress.loaded / progress.total) * 100,
       loadedBytes: progress.loaded,
       totalBytes: progress.total,
     });

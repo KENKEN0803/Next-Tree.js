@@ -145,10 +145,8 @@ export async function getStaticProps() {
   return {
     props: {
       gltfList: [
-        { url: '/assets/compress/compress.glb', name: '블랜더에서 압축한 뒤 내보내기' },
-        { url: '/assets/only_selected/only_selected.gltf', name: '선택된것만 내보내기' },
-        { url: '/assets/gik_gae/gik_gae.gltf', name: '직계자손만 내보내기' },
-        { url: '/assets/full/POC_Titan_Interior.gltf', name: '풀버전' },
+        { url: '/assets/unreal/BP_Titan_Interior.gltf', name: '언리얼 내보내기 디폴트 옵션' },
+        { url: '/assets/untitled.glb', name: 'glb' },
       ],
     },
   };
