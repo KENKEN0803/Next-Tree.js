@@ -272,7 +272,8 @@ export default class TreeJs extends Component {
         scene.add(object);
 
         this._onWindowResize();
-
+        // 계층 형식으로 로그 찍기
+        console.log(this._dumpObject(object).join('\n'));
         console.log('onLoad End');
       },
       (progress) => {
@@ -296,8 +297,6 @@ export default class TreeJs extends Component {
   _animate() {
     if (!this._enable) return;
 
-    requestAnimationFrame(() => this._animate());
-
     if (this._mixer) {
       this._mixer.update(this._clock.getDelta());
     }
@@ -307,6 +306,8 @@ export default class TreeJs extends Component {
     if (this._scene && this._camera && this._renderer) {
       this._renderer.render(this._scene, this._camera);
     }
+
+    requestAnimationFrame(() => this._animate());
   }
 
   _onWindowResize = _.debounce(() => {
@@ -318,6 +319,19 @@ export default class TreeJs extends Component {
     this._camera.updateProjectionMatrix();
     this._renderer.setSize(window.innerWidth, window.innerHeight);
   }, 100);
+
+  // 계층 형식으로 로그 찍기
+  _dumpObject = (obj, lines = [], isLast = true, prefix = '') => {
+    const localPrefix = isLast ? '└─' : '├─';
+    lines.push(`${prefix}${prefix ? localPrefix : ''}${obj.name || '*no-name*'} [${obj.type}]`);
+    const newPrefix = prefix + (isLast ? '  ' : '│ ');
+    const lastNdx = obj.children.length - 1;
+    obj.children.forEach((child, ndx) => {
+      const isLast = ndx === lastNdx;
+      this._dumpObject(child, lines, isLast, newPrefix);
+    });
+    return lines;
+  };
 
   /**
    * @function cleanup
