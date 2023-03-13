@@ -5,6 +5,7 @@ import { OrbitControls } from 'three/addons/controls/OrbitControls';
 import { clickableObjectList } from '../lib/constraint';
 import _ from 'lodash';
 import { DRACOLoader } from 'three/addons/loaders/DRACOLoader';
+import { TWEEN } from 'three/addons/libs/tween.module.min';
 
 export default class TreeJs extends Component {
   constructor(props) {
@@ -33,6 +34,8 @@ export default class TreeJs extends Component {
   _orbitControls = null;
   _raycaster = new THREE.Raycaster();
   _mouse = new THREE.Vector2();
+
+  _clickedObject = null;
 
   componentDidMount() {
     this.startPreview();
@@ -88,6 +91,7 @@ export default class TreeJs extends Component {
     this._raycaster.setFromCamera(this._mouse, this._camera);
     const intersects = this._raycaster.intersectObject(this._scene, true);
     if (intersects.length) {
+      this._clickedObject = intersects[0].object;
       const clickedObjectName = intersects[0].object.name;
 
       if (this.state.clickedObject !== clickedObjectName) {
@@ -115,6 +119,7 @@ export default class TreeJs extends Component {
       //   );
       // }
     } else {
+      this._clickedObject = null;
       if (this.state.clickedObject !== '') {
         this.setState({ clickedObject: '' });
       }
@@ -322,16 +327,13 @@ export default class TreeJs extends Component {
 
   // 계층 형식으로 로그 찍기
   _dumpObject = (obj, lines = [], isLast = true, prefix = '') => {
-
     function dumpVec3(v3, precision = 3) {
       return `${v3.x.toFixed(precision)}, ${v3.y.toFixed(precision)}, ${v3.z.toFixed(precision)}`;
     }
 
     const localPrefix = isLast ? '└─' : '├─';
     lines.push(`${prefix}${prefix ? localPrefix : ''}${obj.name || '*no-name*'} [${obj.type}]`);
-    const dataPrefix = obj.children.length
-      ? (isLast ? '  │ ' : '│ │ ')
-      : (isLast ? '    ' : '│   ');
+    const dataPrefix = obj.children.length ? (isLast ? '  │ ' : '│ │ ') : isLast ? '    ' : '│   ';
     lines.push(`${prefix}${dataPrefix}  pos: ${dumpVec3(obj.position)}`);
     lines.push(`${prefix}${dataPrefix}  rot: ${dumpVec3(obj.rotation)}`);
     lines.push(`${prefix}${dataPrefix}  scl: ${dumpVec3(obj.scale)}`);
@@ -378,6 +380,43 @@ export default class TreeJs extends Component {
     this._canvasRef = null;
   }
 
+  _playAnimation() {
+    // rotate clicked object smoothly
+    if (this._clickedObject) {
+      const x = this._clickedObject.rotation.x;
+      const y = this._clickedObject.rotation.y;
+      const z = this._clickedObject.rotation.z;
+      let isAnimationComplete = false;
+      console.log('playAnimation', isAnimationComplete, x, y, z);
+      new TWEEN.Tween(this._clickedObject.rotation)
+        .to({ x: 0, y: Math.PI * 2, z: 0 }, 2000)
+        .easing(TWEEN.Easing.Quadratic.Out)
+        .onStart(() => {
+        })
+        .onUpdate(() => {
+        })
+        .start()
+        .onComplete(() => {
+          TWEEN.removeAll();
+          isAnimationComplete = true;
+          // reset clicked object
+          this._clickedObject.rotation.x = x;
+          this._clickedObject.rotation.y = y;
+          this._clickedObject.rotation.z = z;
+        });
+
+      const animate = function() {
+        const funcId = requestAnimationFrame(animate);
+        if (isAnimationComplete) {
+          cancelAnimationFrame(funcId);
+        } else {
+          TWEEN.update();
+        }
+      };
+      animate();
+    }
+  }
+
   render() {
     console.log('render', this._width, this._height);
     const width = this._width;
@@ -385,10 +424,12 @@ export default class TreeJs extends Component {
     const { progress, clickedObject, loadedBytes, totalBytes } = this.state;
     return (
       <>
+        <button onClick={this._playAnimation.bind(this)}>playAnimation</button>
         <div>
           Loading progress : {loadedBytes}/{totalBytes} {progress}%
         </div>
         <div>Clicked object : {clickedObject}</div>
+        {this.props.children}
         <canvas ref={this._canvasRef} id='threeContainer' width={width} height={height} />
       </>
     );
