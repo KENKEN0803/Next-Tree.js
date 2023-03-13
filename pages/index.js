@@ -145,8 +145,7 @@ export async function getStaticProps() {
   return {
     props: {
       gltfList: [
-        { url: '/assets/unreal/BP_Titan_Interior.gltf', name: '언리얼 내보내기 디폴트 옵션' },
-        { url: '/assets/untitled.glb', name: 'glb' },
+        { url: '/assets/compress.glb', name: '블랜더 압축후 내보내기' },
       ],
     },
   };
