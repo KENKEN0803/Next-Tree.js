@@ -2,7 +2,7 @@
 import * as THREE from 'three';
 import { GLTFLoader } from 'three/examples/jsm/loaders/GLTFLoader';
 import React, { Component, createRef } from 'react';
-import { clickableObjectList } from '@/lib/constraint';
+import { ClickableObject, clickableObjectList } from '@/lib/constraint';
 import _ from 'lodash';
 import { OrbitControls } from 'three/examples/jsm/controls/OrbitControls';
 import { DRACOLoader } from 'three/examples/jsm/loaders/DRACOLoader';
@@ -84,23 +84,23 @@ export default class TreeJs extends Component<TresJsComponentProps> {
   }
 
   onMouseMove = _.throttle((event) => {
-    const canvas = this._canvasRef.current as HTMLCanvasElement;
-    this._mouse.x = (event.offsetX / canvas.clientWidth) * 2 - 1;
-    this._mouse.y = -(event.offsetY / canvas.clientHeight) * 2 + 1;
-    this._raycaster.setFromCamera(this._mouse, this._camera);
-    const intersects = this._raycaster.intersectObject(this._scene, true);
-    // apply cursor pointer if intersection is detected
-    if (intersects.length) {
-      if (clickableObjectList.includes(intersects[0].object.name)) {
-        if (this._renderer.domElement.style.cursor !== 'pointer') {
-          this._renderer.domElement.style.cursor = 'pointer';
-        }
-      }
-    } else {
-      if (this._renderer.domElement.style.cursor !== 'auto') {
-        this._renderer.domElement.style.cursor = 'auto';
-      }
-    }
+    // const canvas = this._canvasRef.current as HTMLCanvasElement;
+    // this._mouse.x = (event.offsetX / canvas.clientWidth) * 2 - 1;
+    // this._mouse.y = -(event.offsetY / canvas.clientHeight) * 2 + 1;
+    // this._raycaster.setFromCamera(this._mouse, this._camera);
+    // const intersects = this._raycaster.intersectObject(this._scene, true);
+    // // apply cursor pointer if intersection is detected
+    // if (intersects.length) {
+    //   if (clickableObjectList.includes(intersects[0].object.name)) {
+    //     if (this._renderer.domElement.style.cursor !== 'pointer') {
+    //       this._renderer.domElement.style.cursor = 'pointer';
+    //     }
+    //   }
+    // } else {
+    //   if (this._renderer.domElement.style.cursor !== 'auto') {
+    //     this._renderer.domElement.style.cursor = 'auto';
+    //   }
+    // }
   }, 300);
 
   onMouseClick(event) {
@@ -120,13 +120,16 @@ export default class TreeJs extends Component<TresJsComponentProps> {
         this.setState({ clickedObject: clickedObjectName });
       }
 
-      if (clickableObjectList.includes(clickedObjectName)) {
-        alert(clickedObjectName);
+      const clickableObject = clickableObjectList.find((element) =>
+        element.name.includes(clickedObjectName),
+      );
+      if (clickableObject) {
+        this._playAnimation(clickableObject);
       }
 
-      if (this._isAnimationComplete) {
-        this._playAnimation();
-      }
+      // if (clickableObjectList.some((element) => element.name === clickedObjectName)) {
+      //   this._playAnimation();
+      // }
 
       // TODO set camera to clicked object
       // const clickedObject = this._scene.getObjectByName(clickedObjectName);
@@ -191,7 +194,6 @@ export default class TreeJs extends Component<TresJsComponentProps> {
     //     'https://threejsfundamentals.org/threejs/resources/images/cubemaps/computer-history-museum/pos-z.jpg',
     //     'https://threejsfundamentals.org/threejs/resources/images/cubemaps/computer-history-museum/neg-z.jpg',
     //   ]);
-
     // 2D Background 그대로 보여주기
     // const backGroundTextureLoader = new THREE.TextureLoader();
     // backGroundTextureLoader.load(
@@ -408,20 +410,39 @@ export default class TreeJs extends Component<TresJsComponentProps> {
     this._canvasRef = null;
   }
 
-  _playAnimation() {
+  _playAnimation(clickableObject: ClickableObject) {
+    let x;
+    let y;
+    let z;
+    let target;
+    const zeroPosition = { x: 0, y: 0, z: 0 };
+
     // rotate clicked object smoothly
-    if (this._clickedObject.name) {
+    if (this._clickedObject?.name) {
       if (this._isAnimationComplete) {
         this._isAnimationComplete = false;
       } else {
         return;
       }
-      const x = this._clickedObject.rotation.x;
-      const y = this._clickedObject.rotation.y;
-      const z = this._clickedObject.rotation.z;
-      console.log('playAnimation', this._isAnimationComplete, x, y, z);
-      new TWEEN.Tween(this._clickedObject.rotation)
-        .to({ x: Math.PI * 2, y: Math.PI * 2, z: Math.PI * 2 }, 2000)
+
+      console.log(this._clickedObject);
+      const { duration, toXYZ, type, useParent } = clickableObject.animationConfig;
+      if (useParent) {
+        target = this._clickedObject.parent[type];
+        x = this._clickedObject.parent[type].x;
+        y = this._clickedObject.parent[type].y;
+        z = this._clickedObject.parent[type].z;
+      } else {
+        target = this._clickedObject[type];
+        x = this._clickedObject[type].x;
+        y = this._clickedObject[type].y;
+        z = this._clickedObject[type].z;
+      }
+
+      const isMoved = x !== toXYZ.x || y !== toXYZ.y || z !== toXYZ.z;
+
+      new TWEEN.Tween(target)
+        .to(!isMoved ? zeroPosition : toXYZ, duration)
         .easing(TWEEN.Easing.Quadratic.Out)
         .onStart(() => {})
         .onUpdate(() => {})
@@ -430,9 +451,15 @@ export default class TreeJs extends Component<TresJsComponentProps> {
           TWEEN.removeAll();
           this._isAnimationComplete = true;
           // reset clicked object
-          this._clickedObject.rotation.x = x;
-          this._clickedObject.rotation.y = y;
-          this._clickedObject.rotation.z = z;
+          // if (useParent) {
+          //   this._clickedObject.parent[type].x = x;
+          //   this._clickedObject.parent[type].y = y;
+          //   this._clickedObject.parent[type].z = z;
+          // } else {
+          //   this._clickedObject[type].x = x;
+          //   this._clickedObject[type].y = y;
+          //   this._clickedObject[type].z = z;
+          // }
         });
 
       const animate = () => {
