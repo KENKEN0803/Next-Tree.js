@@ -7,6 +7,7 @@ import _ from 'lodash';
 import { OrbitControls } from 'three/examples/jsm/controls/OrbitControls';
 import { DRACOLoader } from 'three/examples/jsm/loaders/DRACOLoader';
 import { TWEEN } from 'three/examples/jsm/libs/tween.module.min';
+import { XYZ } from '@/lib/animation/CustomAnimation';
 
 interface TresJsComponentProps {
   gltfUrl: string;
@@ -410,15 +411,20 @@ export default class TreeJs extends Component<TresJsComponentProps> {
     this._canvasRef = null;
   }
 
+  _originalLocationList: {
+    name: string;
+    position: XYZ;
+    rotation: XYZ;
+    scale: XYZ;
+  }[] = [];
+
   _playAnimation(clickableObject: ClickableObject) {
-    let x;
-    let y;
-    let z;
     let target;
-    const zeroPosition = { x: 0, y: 0, z: 0 };
+    let originalLocation;
 
     // rotate clicked object smoothly
     if (this._clickedObject?.name) {
+      // TODO parent도 찾아보기?
       if (this._isAnimationComplete) {
         this._isAnimationComplete = false;
       } else {
@@ -426,23 +432,55 @@ export default class TreeJs extends Component<TresJsComponentProps> {
       }
 
       console.log(this._clickedObject);
-      const { duration, toXYZ, type, useParent } = clickableObject.animationConfig;
+      const { duration, toXYZ, animationType, useParent } = clickableObject.animationConfig;
+
       if (useParent) {
-        target = this._clickedObject.parent[type];
-        x = this._clickedObject.parent[type].x;
-        y = this._clickedObject.parent[type].y;
-        z = this._clickedObject.parent[type].z;
+        target = this._clickedObject.parent[animationType];
+        originalLocation = this._originalLocationList.find(
+          (item) => item.name === this._clickedObject.parent.name,
+        );
+
+        if (!originalLocation) {
+          const tempOriginalLocation = {
+            name: this._clickedObject.parent.name,
+            position: { ...this._clickedObject.parent.position },
+            rotation: { ...this._clickedObject.parent.rotation },
+            scale: { ...this._clickedObject.parent.scale },
+          };
+          this._originalLocationList.push(tempOriginalLocation);
+          originalLocation = tempOriginalLocation;
+        }
       } else {
-        target = this._clickedObject[type];
-        x = this._clickedObject[type].x;
-        y = this._clickedObject[type].y;
-        z = this._clickedObject[type].z;
+        target = this._clickedObject[animationType];
+        originalLocation = this._originalLocationList.find(
+          (item) => item.name === this._clickedObject.name,
+        );
+
+        if (!originalLocation) {
+          const tempOriginalLocation = {
+            name: this._clickedObject.name,
+            position: { ...this._clickedObject.position },
+            rotation: { ...this._clickedObject.rotation },
+            scale: { ...this._clickedObject.scale },
+          };
+          this._originalLocationList.push(tempOriginalLocation);
+          originalLocation = tempOriginalLocation;
+        }
       }
 
-      const isMoved = x !== toXYZ.x || y !== toXYZ.y || z !== toXYZ.z;
+      const isMoved =
+        originalLocation[animationType].x === toXYZ.x &&
+        originalLocation[animationType].y === toXYZ.y &&
+        originalLocation[animationType].z === toXYZ.z;
+
+      const zeroPosition = {
+        x: originalLocation[animationType].x,
+        y: originalLocation[animationType].y,
+        z: originalLocation[animationType].z,
+      };
 
       new TWEEN.Tween(target)
-        .to(!isMoved ? zeroPosition : toXYZ, duration)
+        .to(isMoved ? zeroPosition : toXYZ, duration)
         .easing(TWEEN.Easing.Quadratic.Out)
         .onStart(() => {})
         .onUpdate(() => {})
@@ -452,13 +490,13 @@ export default class TreeJs extends Component<TresJsComponentProps> {
           this._isAnimationComplete = true;
           // reset clicked object
           // if (useParent) {
-          //   this._clickedObject.parent[type].x = x;
-          //   this._clickedObject.parent[type].y = y;
-          //   this._clickedObject.parent[type].z = z;
+          //   this._clickedObject.parent[animationType].x = x;
+          //   this._clickedObject.parent[animationType].y = y;
+          //   this._clickedObject.parent[animationType].z = z;
           // } else {
-          //   this._clickedObject[type].x = x;
-          //   this._clickedObject[type].y = y;
-          //   this._clickedObject[type].z = z;
+          //   this._clickedObject[animationType].x = x;
+          //   this._clickedObject[animationType].y = y;
+          //   this._clickedObject[animationType].z = z;
           // }
         });
 

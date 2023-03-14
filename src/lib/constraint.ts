@@ -2,7 +2,7 @@ import { animationType, XYZ } from '@/lib/animation/CustomAnimation';
 
 interface animationConfig {
   duration: number;
-  type: animationType;
+  animationType: animationType;
   toXYZ: XYZ;
   useParent: boolean;
 }
@@ -19,7 +19,7 @@ export const clickableObjectList: ClickableObject[] = [
     ],
     animationConfig: {
       duration: 1000,
-      type: 'position',
+      animationType: 'position',
       toXYZ: { x: 0, y: 0.2, z: 0 },
       useParent: true,
     },
