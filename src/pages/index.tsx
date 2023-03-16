@@ -1,4 +1,3 @@
-'use client';
 import styles from './page.module.css';
 import TreeJs from '@/component/treeJs';
 import { useEffect, useState } from 'react';
