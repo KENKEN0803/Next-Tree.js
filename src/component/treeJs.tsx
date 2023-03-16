@@ -469,9 +469,9 @@ export default class TreeJs extends Component<TresJsComponentProps> {
       }
 
       const isMoved =
-        originalLocation[animationType].x === toXYZ.x &&
-        originalLocation[animationType].y === toXYZ.y &&
-        originalLocation[animationType].z === toXYZ.z;
+        target.x !== originalLocation[animationType].x ||
+        target.y !== originalLocation[animationType].y ||
+        target.z !== originalLocation[animationType].z;
 
       const zeroPosition = {
         x: originalLocation[animationType].x,
